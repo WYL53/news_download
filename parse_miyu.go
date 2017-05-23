@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"news_download/model"
 )
 
 //import(
@@ -34,5 +34,5 @@ func parseMiYu(m map[string]interface{}) {
 }
 
 func storageMiyu(typeName, answer, title string) {
-	fmt.Println(typeName, title, answer)
+	storageNews(model.NewNews(typeName, title+"/n"+answer, "", model.TYPE_MIYU))
 }

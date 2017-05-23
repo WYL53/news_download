@@ -1,9 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"strings"
+
+	"news_download/model"
 )
+
+var lastTxtJokeid string
+var lastPicJokeid string
 
 func parseTxtJoke(m map[string]interface{}) {
 	showapiResBody, ok := m["showapi_res_body"].(map[string]interface{})
@@ -14,18 +18,29 @@ func parseTxtJoke(m map[string]interface{}) {
 	if !ok || len(contentList) == 0 {
 		return
 	}
-	for i, elem := range contentList {
+	newId := ""
+	for _, elem := range contentList {
 		joke, ok := elem.(map[string]interface{})
 		if !ok {
 			continue
 		}
+		id, ok := joke["id"].(string)
+		if ok && strings.Compare(lastTxtJokeid, id) == 0 {
+			break
+		}
+		if len(newId) == 0 {
+			newId = id
+		}
 		text := joke["text"].(string)
-		storageTxtJoke(i, text)
+		storageTxtJoke(text)
+	}
+	if len(newId) > 0 && lastTxtJokeid != newId {
+		lastTxtJokeid = newId
 	}
 }
 
-func storageTxtJoke(i int, txt string) {
-	fmt.Println(i, txt)
+func storageTxtJoke(txt string) {
+	storageNews(model.NewNews("", txt, "", model.TYPE_JOKE))
 }
 
 func parsePicJoke(m map[string]interface{}) {
@@ -37,10 +52,18 @@ func parsePicJoke(m map[string]interface{}) {
 	if !ok || len(contentList) == 0 {
 		return
 	}
+	newId := ""
 	for _, elem := range contentList {
 		joke, ok := elem.(map[string]interface{})
 		if !ok {
 			continue
+		}
+		id, ok := joke["id"].(string)
+		if ok && strings.Compare(id, lastPicJokeid) == 0 {
+			break
+		}
+		if len(newId) == 0 {
+			newId = id
 		}
 		title := joke["title"].(string)
 		img, ok := joke["img"].(string)
@@ -49,10 +72,13 @@ func parsePicJoke(m map[string]interface{}) {
 		}
 		storagePicJoke(title, img)
 	}
+	if len(newId) > 0 && newId != lastPicJokeid {
+		lastPicJokeid = newId
+	}
 }
 
 func storagePicJoke(txt, img string) {
-	fmt.Println(filterQuot(txt), img)
+	storageNews(model.NewNews("", txt, img, model.TYPE_JOKE))
 }
 
 //过滤字符

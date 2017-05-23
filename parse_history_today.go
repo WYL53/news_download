@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"news_download/model"
+)
 
 func parseHistoryTody(m map[string]interface{}) {
 	showapiResBody, ok := m["showapi_res_body"].(map[string]interface{})
@@ -28,5 +30,6 @@ func parseHistoryTody(m map[string]interface{}) {
 }
 
 func storageHistoryToday(title, year, img string) {
-	fmt.Println(year, title, img)
+	storageNews(model.NewNews(year, title, img, model.TYPE_HISTORY_TODAY))
+	//	nl := make([]s)
 }

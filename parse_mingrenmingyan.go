@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"news_download/model"
 )
 
 func parseMingRenMingYan(m map[string]interface{}) {
@@ -22,5 +22,5 @@ func parseMingRenMingYan(m map[string]interface{}) {
 }
 
 func storageMingRenMingYan(content, contentEn, pic string) {
-	fmt.Println(content, contentEn, pic)
+	storageNews(model.NewNews("", content+"/n"+contentEn, pic, model.TYPE_MINGRENMINGYAN))
 }

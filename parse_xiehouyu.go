@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"news_download/model"
 )
 
 func parseXiehouyu(m map[string]interface{}) {
@@ -15,5 +15,5 @@ func parseXiehouyu(m map[string]interface{}) {
 }
 
 func storageXieHouyu(content, answer string) {
-	fmt.Println(content, answer)
+	storageNews(model.NewNews("", content+"/n"+answer, "", model.TYPE_XIEHOUYU))
 }

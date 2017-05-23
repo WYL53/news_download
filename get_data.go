@@ -3,47 +3,48 @@ package main
 import (
 	"fmt"
 	"math"
+	"time"
 	//	"bytes"
 	"encoding/json"
 	//	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
-	"runtime"
+	//	"runtime"
 	"strings"
-	"sync"
+	//	"sync"
 	//	"net"
 )
 
 func start() {
-	wg := &sync.WaitGroup{}
-	//	YYDataFunc := func(url string, parseHandle func(map[string]interface{})) {
-	//		wg.Add(1)
-	//		defer wg.Done()
-	//		err := getYYData(url, parseHandle)
-	//		if err != nil {
-	//			Log.Println(err)
-	//		}
-	//	}
-
-	//	go func(url string) {
-	//		wg.Add(1)
-	//		defer wg.Done()
-	//		getMingRenMingYan(url)
-	//	}(API_MINGRENMINGYAN_URL)
+	//	wg := &sync.WaitGroup{}
+	//	wg.Add(5)
+	go func() {
+		//		defer wg.Done()
+		//		defer wg.Done()
+		//		defer wg.Done()
+		YYDataFunc(API_PIC_JOKE_URL, parsePicJoke)
+		YYDataFunc(API_MIYU_URL, parseMiYu)
+		YYDataFunc(API_TXT_JOKE_URL, parseTxtJoke)
+	}()
 
 	go func(url string) {
-		wg.Add(1)
-		defer wg.Done()
+		//		defer wg.Done()
+		getMingRenMingYan(url)
+	}(API_MINGRENMINGYAN_URL)
+
+	go func(url string) {
+		//		defer wg.Done()
 		getXieHouYu(url, parseXiehouyu)
 	}(API_XIEHOUYU_URL)
 
-	runtime.Gosched()
-	wg.Wait()
+	//	runtime.Gosched()
+	//	wg.Wait()
+	//	Log.Println("start eixt")
 }
 
 //易源 数据
-func getYYData(url string, parseHandle func(map[string]interface{})) error {
+func getYYData(url string, parseHandle func(map[string]interface{})) {
 	defer func() {
 		if x := recover(); x != nil {
 			Log.Println(x)
@@ -56,7 +57,6 @@ func getYYData(url string, parseHandle func(map[string]interface{})) error {
 	if ok && isEqualFloat(showapiResCode, 0) {
 		parseHandle(resp)
 	}
-	return nil
 }
 
 func getXieHouYu(url string, parseHandle func(map[string]interface{})) {
@@ -94,11 +94,15 @@ func postRequest(url string, reqBody io.Reader) map[string]interface{} {
 			panic(err)
 		}
 	}
+	client := http.Client{
+		Timeout: time.Duration(time.Second * time.Duration(10)),
+	}
+
 	request, err := http.NewRequest(http.MethodPost, url, reqBody)
 	checkErr(err)
 	request.Header.Add("content-type", "application/x-www-form-urlencoded")
 
-	res, err := http.DefaultClient.Do(request)
+	res, err := client.Do(request)
 	checkErr(err)
 	defer res.Body.Close()
 	response, err := ioutil.ReadAll(res.Body)
@@ -119,7 +123,12 @@ func getRequest(url string) map[string]interface{} {
 			panic(err)
 		}
 	}
-	resp, err := http.Get(url)
+	client := http.Client{
+		Timeout: time.Duration(time.Second * time.Duration(10)),
+	}
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	checkErr(err)
+	resp, err := client.Do(req)
 	checkErr(err)
 	defer resp.Body.Close()
 

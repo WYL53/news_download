@@ -1,0 +1,11 @@
+-- Describe NEWS
+CREATE TABLE "news" (
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    "title" TEXT,
+    "content" TEXT NOT NULL,
+    "img" TEXT,
+    "type" INTEGER NOT NULL,
+    "upload" INTEGER NOT NULL DEFAULT (0),
+    "create_time" INTEGER
+)
+
